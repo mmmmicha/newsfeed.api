@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PageModule } from './page/page.module';
 import { NewsModule } from './news/news.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
     imports: [MongooseModule.forRootAsync({
@@ -21,7 +22,7 @@ import { NewsModule } from './news/news.module';
         isGlobal: true,
     }), 
     UserModule, 
-    AuthModule, PageModule, NewsModule],
+    AuthModule, PageModule, NewsModule, SubscriptionModule],
     controllers: [AppController],
     providers: [AppService],
 })
