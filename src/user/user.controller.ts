@@ -16,6 +16,7 @@ export class UserController {
     }
 
     @Get()
+    @UseGuards(AuthGuard)
     async findOne(@Req() req: Request, @Res() res: Response): Promise<any> {
         const userId = req.user['_id'];
         const payload = await this.userService.findOne(userId);

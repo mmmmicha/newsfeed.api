@@ -5,6 +5,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PageModule } from './page/page.module';
 
 @Module({
     imports: [MongooseModule.forRootAsync({
@@ -19,7 +20,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         isGlobal: true,
     }), 
     UserModule, 
-    AuthModule],
+    AuthModule, PageModule],
     controllers: [AppController],
     providers: [AppService],
 })
