@@ -23,7 +23,7 @@ export class PageService {
     }
 
     async updateOne(pageId: string, updatePageDTO: UpdatePageDTO): Promise<PageDocument | undefined> {
-        return this.pageModel.findByIdAndUpdate(pageId, updatePageDTO);
+        return this.pageModel.findByIdAndUpdate(pageId, updatePageDTO, { returnOriginal: false });
     }
 
     async deleteOne(pageId: string): Promise<PageDocument | undefined> {

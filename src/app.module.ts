@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PageModule } from './page/page.module';
+import { NewsModule } from './news/news.module';
 
 @Module({
     imports: [MongooseModule.forRootAsync({
@@ -20,7 +21,7 @@ import { PageModule } from './page/page.module';
         isGlobal: true,
     }), 
     UserModule, 
-    AuthModule, PageModule],
+    AuthModule, PageModule, NewsModule],
     controllers: [AppController],
     providers: [AppService],
 })
