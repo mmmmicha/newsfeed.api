@@ -16,7 +16,7 @@ import { User, UserSchema } from 'src/model/user.model';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('ACCESS_TOKEN_SECRET'),
-        signOptions: { expiresIn: 60 * 60 * 1000 },
+        signOptions: { expiresIn: '1h' },
       }),
     }),
   ],

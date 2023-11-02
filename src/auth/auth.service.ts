@@ -45,7 +45,7 @@ export class AuthService {
     private createAccessToken(payload: Payload): string {
         return this.jwtService.sign(payload, {
             secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
-            expiresIn: 60 * 60 * 1000,
+            expiresIn: '1h',
         })
     };
 
@@ -72,7 +72,7 @@ export class AuthService {
     async refresh(refreshTokenDTO: RefreshTokenDTO): Promise<{ accessToken: string, refreshToken: string }> {
         const { refreshToken } = refreshTokenDTO;
     
-        const decodedRefreshToken = this.jwtService.verify(refreshToken, { secret: 'refresh_secret' }) as Payload;
+        const decodedRefreshToken = this.jwtService.verify(refreshToken, { secret: this.configService.get<string>('REFRESH_TOKEN_SECRET') }) as Payload;
     
         const user = await this.userService.findUserIfRefreshTokenMatches(decodedRefreshToken.userId, refreshToken);
         if (!user) {
