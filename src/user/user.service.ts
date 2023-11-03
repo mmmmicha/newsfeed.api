@@ -2,9 +2,8 @@ import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from 'src/model/user.model';
+import { User, UserDocument } from '../model/user.model';
 import { Model, QueryOptions } from 'mongoose';
-import { updateUserDTO } from './dto/updateUser.dto';
 
 @Injectable()
 export class UserService {
@@ -22,10 +21,6 @@ export class UserService {
 
     async findOneByOptions(queryOptions: QueryOptions): Promise<UserDocument | undefined> {
         return await this.userModel.findOne(queryOptions);
-    }
-
-    async updateOne(userId: string, updateUserDTO: updateUserDTO): Promise<UserDocument> {
-        return await this.userModel.findByIdAndUpdate(userId, updateUserDTO, { returnOriginal: false });
     }
 
     async deleteOne(userId: string): Promise<UserDocument> {

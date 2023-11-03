@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Subscription, SubscriptionDocument } from 'src/model/subscription.model';
+import { Subscription, SubscriptionDocument } from '../model/subscription.model';
 import { CreateSubscriptionDTO } from './dto/createSubscription.dto';
-import { Page, PageDocument } from 'src/model/page.model';
-import { News, NewsDocument } from 'src/model/news.model';
+import { Page, PageDocument } from '../model/page.model';
+import { News, NewsDocument } from '../model/news.model';
 
 @Injectable()
 export class SubscriptionService {

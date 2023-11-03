@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Page, PageDocument } from 'src/model/page.model';
+import { Page, PageDocument } from '../model/page.model';
 import { CreatePageDTO } from './dto/createPage.dto';
 import { UpdatePageDTO } from './dto/updatePage.dto';
 

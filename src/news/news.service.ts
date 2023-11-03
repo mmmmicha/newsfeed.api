@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, QueryOptions } from 'mongoose';
-import { News, NewsDocument } from 'src/model/news.model';
+import { News, NewsDocument } from '../model/news.model';
 import { CreateNewsDTO } from './dto/createNews.dto';
 import { UpdateNewsDTO } from './dto/updateNews.dto';
-import { Page, PageDocument } from 'src/model/page.model';
+import { Page, PageDocument } from '../model/page.model';
 
 @Injectable()
 export class NewsService {
@@ -17,12 +17,8 @@ export class NewsService {
         return this.newsModel.find();
     }
 
-    async findByOptions(options: QueryOptions): Promise<NewsDocument[] | undefined> {
-        return this.newsModel.find(options);
-    }
-
     async create(createNewsDTO: CreateNewsDTO): Promise<NewsDocument | undefined> {
-        const page = this.pageModel.findById(createNewsDTO.pageId);
+        const page = await this.pageModel.findById(createNewsDTO.pageId);
         if (!page) 
             throw new NotFoundException('Not Found Page');
         const news = new this.newsModel(createNewsDTO);
@@ -31,7 +27,6 @@ export class NewsService {
 
     async updateOne(newsId: string, updateNewsDTO: UpdateNewsDTO): Promise<NewsDocument | undefined> {
         const news = await this.newsModel.findById(newsId);
-        console.log(`dto.ownerId: ${updateNewsDTO.ownerId}, news.ownerId: ${news.ownerId}`);
         if (updateNewsDTO.ownerId.toString() !== news.ownerId)
             throw new UnauthorizedException('owner only can update!');
         delete updateNewsDTO.ownerId;
