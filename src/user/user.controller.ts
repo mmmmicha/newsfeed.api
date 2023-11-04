@@ -1,14 +1,15 @@
-import { Body, Controller, Delete, Get, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Req, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/createUser.dto';
-import { AuthGuard } from 'src/auth/security/auth.guard';
+import { AuthGuard } from '../auth/security/auth.guard';
 
 @Controller('user')
 export class UserController {
     constructor(private userService: UserService) {}
 
     @Post()
+    @UsePipes(ValidationPipe)
     async create(@Body() createUserDTO: CreateUserDTO, @Res() res: Response): Promise<any> {
         const payload = await this.userService.create(createUserDTO);
         return res.send({ message: 'ok', payload: payload });

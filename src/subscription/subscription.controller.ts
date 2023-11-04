@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Req, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SubscriptionService } from './subscription.service';
-import { AuthGuard } from 'src/auth/security/auth.guard';
-import { RolesGuard } from 'src/auth/security/roles.guard';
-import { Roles } from 'src/auth/decorator/role.decorator';
-import { RoleType } from 'src/auth/role-type';
+import { AuthGuard } from '../auth/security/auth.guard';
+import { RolesGuard } from '../auth/security/roles.guard';
+import { Roles } from '../auth/decorator/role.decorator';
+import { RoleType } from '../auth/role-type';
 import { CreateSubscriptionDTO } from './dto/createSubscription.dto';
 import { Request, Response } from 'express';
 
@@ -14,6 +14,7 @@ export class SubscriptionController {
     @Post()
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(RoleType.STUDENT)
+    @UsePipes(ValidationPipe)
     async create(@Body() createSubscriptionDTO: CreateSubscriptionDTO, @Req() req: Request, @Res() res: Response): Promise<any> {
         const userId = req.user['_id'];
         createSubscriptionDTO.userId = userId;

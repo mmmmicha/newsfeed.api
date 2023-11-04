@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { PageService } from './page.service';
 import { CreatePageDTO } from './dto/createPage.dto';
-import { AuthGuard } from 'src/auth/security/auth.guard';
-import { RolesGuard } from 'src/auth/security/roles.guard';
-import { Roles } from 'src/auth/decorator/role.decorator';
-import { RoleType } from 'src/auth/role-type';
+import { AuthGuard } from '../auth/security/auth.guard';
+import { RolesGuard } from '../auth/security/roles.guard';
+import { Roles } from '../auth/decorator/role.decorator';
+import { RoleType } from '../auth/role-type';
 import { Response } from 'express';
 import { UpdatePageDTO } from './dto/updatePage.dto';
 
@@ -15,6 +15,7 @@ export class PageController {
     @Post()
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(RoleType.TEACHER)
+    @UsePipes(ValidationPipe)
     async create(@Body() createPageDTO: CreatePageDTO, @Res() res: Response): Promise<any> {
         const payload = await this.pageService.create(createPageDTO);
         return res.send({ message: 'ok', payload: payload });
@@ -39,6 +40,7 @@ export class PageController {
     @Put(':pageId')
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(RoleType.TEACHER)
+    @UsePipes(ValidationPipe)
     async updateOne(@Param('pageId') pageId: string, @Body() updatePageDTO: UpdatePageDTO, @Res() res: Response): Promise<any> {
         const payload = await this.pageService.updateOne(pageId, updatePageDTO);
         return res.send({ message: 'ok', payload: payload });

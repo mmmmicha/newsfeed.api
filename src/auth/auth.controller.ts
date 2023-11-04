@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { AuthGuard } from './security/auth.guard';
@@ -10,6 +10,7 @@ export class AuthController {
     constructor(private authService: AuthService) {}
 
     @Post('/login')
+    @UsePipes(ValidationPipe)
     async login(@Body() loginInfo: LoginDTO, @Res() res: Response): Promise<any> {
         const jwt = await this.authService.validate(loginInfo);
         res.cookie('accessToken', jwt.accessToken, { httpOnly: true });
@@ -27,6 +28,7 @@ export class AuthController {
     }
 
     @Post('/refresh')
+    @UsePipes(ValidationPipe)
     async refreshToken(@Body() refreshTokenDTO: RefreshTokenDTO, @Res() res: Response): Promise<any> {
         const jwt = await this.authService.refresh(refreshTokenDTO);
         res.cookie('accessToken', jwt.accessToken, { httpOnly: true });

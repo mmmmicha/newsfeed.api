@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { NewsService } from './news.service';
-import { AuthGuard } from 'src/auth/security/auth.guard';
-import { RolesGuard } from 'src/auth/security/roles.guard';
-import { Roles } from 'src/auth/decorator/role.decorator';
-import { RoleType } from 'src/auth/role-type';
+import { AuthGuard } from '../auth/security/auth.guard';
+import { RolesGuard } from '../auth/security/roles.guard';
+import { Roles } from '../auth/decorator/role.decorator';
+import { RoleType } from '../auth/role-type';
 import { CreateNewsDTO } from './dto/createNews.dto';
 import { Request, Response } from 'express';
 import { UpdateNewsDTO } from './dto/updateNews.dto';
@@ -15,6 +15,7 @@ export class NewsController {
     @Post()
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(RoleType.TEACHER)
+    @UsePipes(ValidationPipe)
     async create(@Body() createNewsDTO: CreateNewsDTO, @Req() req: Request, @Res() res: Response): Promise<any> {
         const userId = req.user['_id'];
         createNewsDTO.ownerId = userId;
@@ -34,6 +35,7 @@ export class NewsController {
     @Put(':newsId')
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(RoleType.TEACHER)
+    @UsePipes(ValidationPipe)
     async updateOne(@Param('newsId') newsId: string, @Body() updateNewsDTO: UpdateNewsDTO, @Req() req: Request, @Res() res: Response): Promise<any> {
         const userId = req.user['_id'];
         updateNewsDTO.ownerId = userId;
