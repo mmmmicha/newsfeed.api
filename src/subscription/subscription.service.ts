@@ -22,10 +22,16 @@ export class SubscriptionService {
         return newSub.save();
     }
 
-    async findSubscribedPages(userId: string): Promise<PageDocument[] | undefined> {
+    async findSubscribedPages(userId: string): Promise<any[] | undefined> {
         const subs = await this.subscriptionModel.find({ userId: userId, deletedAt: null });
         const subsIds = subs.map(sub => sub.pageId);
-        return this.pageModel.find({ _id: { $in: subsIds } });
+        const subPageList = await this.pageModel.find({ _id: { $in: subsIds } }).lean();
+        return subPageList.map(subPage => {
+            return {
+                ...subPage,
+                subscriptionId: subs.filter(sub => sub.pageId === subPage._id.toString())[0]._id.toString()
+            }
+        });
     }
 
     async findSubscribedPageNews(pageId: string, userId: string): Promise<NewsDocument[] | undefined> {

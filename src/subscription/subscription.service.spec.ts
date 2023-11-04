@@ -65,18 +65,12 @@ const mockPage = {
     schoolName: '부평고등학교'
 }
 
-const mockPageList = [
-    {
-        _id: 'mockPageId',
-        location: '인천광역시 부평구 충선로 19',
-        schoolName: '부평고등학교'
-    },
-    {
-        _id: 'mockPageId2',
-        location: '인천광역시 부평구 충선로 18',
-        schoolName: '부평초등학교'
-    }
-]
+const mockSubPage = {
+    _id: 'mockPageId',
+    location: '인천광역시 부평구 충선로 19',
+    schoolName: '부평고등학교',
+    subscriptionId: 'mockSubId'
+}
 
 const mockNews = {
     _id: 'mockNewsId',
@@ -250,13 +244,17 @@ describe('SubscriptionService', () => {
         subModel.find = jest.fn().mockResolvedValue([mockSub]);
 
         const pageModel = module.get(getModelToken(Page.name));
-        pageModel.find = jest.fn().mockResolvedValue([mockPage]);
-
+        pageModel.find = jest.fn().mockReturnValue({
+            lean: jest.fn().mockResolvedValue([mockSubPage]),
+        });
+    
         const result = await service.findSubscribedPages(userId);
-
-        expect(result).toEqual([mockPage]);
+    
+        expect(result).toEqual([mockSubPage]);
         expect(subModel.find).toBeCalledWith(subQueryOptions);
         expect(pageModel.find).toBeCalledWith(pageQueryOptions);
+    
+        expect(pageModel.find().lean).toHaveBeenCalled();
     })
 
     it('should find subscribed page news by pageId and userId', async () => {
@@ -274,6 +272,7 @@ describe('SubscriptionService', () => {
         const result = await service.findSubscribedPageNews(pageId, userId);
         const filteredNewsList = mockNewsList.filter(news => news._id === 'mockNewsId2' || news._id === 'mockNewsId3' || news._id === 'mockNewsId4');
         const sortedFilteredNewsList = filteredNewsList.sort(function(a:any, b:any) { return b.createdAt - a.createdAt });
+
         expect(result).toStrictEqual(sortedFilteredNewsList);
     })
 
@@ -290,9 +289,11 @@ describe('SubscriptionService', () => {
                                     .mockResolvedValueOnce(mockNewsList.filter(news => news._id === 'mockNewsId3' || news._id === 'mockNewsId4'))
                                     .mockResolvedValueOnce(mockNewsList.filter(news => news._id === 'mockNewsId6'))
                                     .mockResolvedValueOnce(mockNewsList.filter(news => news._id === 'mockNewsId7' || news._id === 'mockNewsId8'));
+        
         const result = await service.findSubscribedPageNews(pageId, userId);
         const filteredNewsList = mockNewsList.filter(news => news._id === 'mockNewsId2' || news._id === 'mockNewsId3' || news._id === 'mockNewsId4' || news._id === 'mockNewsId6' || news._id === 'mockNewsId7' || news._id === 'mockNewsId8');
         const sortedFilteredNewsList = filteredNewsList.sort(function(a:any, b:any) { return b.createdAt - a.createdAt });
+
         expect(result).toStrictEqual(sortedFilteredNewsList);
     })
 
@@ -325,6 +326,7 @@ describe('SubscriptionService', () => {
         subModel.findByIdAndUpdate = jest.fn().mockResolvedValue(deletedMockSub);
 
         const result = await service.deleteOne(subId, userId);
+
         expect(result.deletedAt).toBeInstanceOf(Date);
         expect(result.deletedAt.getTime()).toBeLessThanOrEqual(new Date().getTime());
         expect(subModel.findById).toBeCalledWith(subId);

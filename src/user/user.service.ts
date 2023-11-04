@@ -12,19 +12,18 @@ export class UserService {
     async create(createUserDTO: CreateUserDTO): Promise<any> {
         createUserDTO.password = this.convertPasswordToHash(createUserDTO.password);
         const newUser = new this.userModel(createUserDTO);
-        return await newUser.save();
+        return newUser.save();
     }
 
     async findOne(userId: string): Promise<UserDocument | undefined> {
-        return await this.userModel.findById(userId);
-    }
-
-    async findOneByOptions(queryOptions: QueryOptions): Promise<UserDocument | undefined> {
-        return await this.userModel.findOne(queryOptions);
+        const user = await this.userModel.findById(userId).lean();
+        delete user.password;
+        delete user.hashedRefreshToken;
+        return user;
     }
 
     async deleteOne(userId: string): Promise<UserDocument> {
-        return await this.userModel.findByIdAndDelete(userId);
+        return this.userModel.findByIdAndDelete(userId);
     }
 
     private convertPasswordToHash(password: string): string {
