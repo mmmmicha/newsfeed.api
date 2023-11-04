@@ -1,0 +1,284 @@
+openapi: 3.0.0
+info:
+  title: classting
+  version: 1.0.0
+servers:
+  - url: http://{{url}}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+  - name: User
+  - name: Page
+  - name: News
+  - name: Subscription
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: student@gmail.com
+                password: '1234'
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json: {}
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                refreshToken: '{{refreshToken}}'
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json: {}
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: logout
+      requestBody:
+        content: {}
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json: {}
+  /user:
+    get:
+      tags:
+        - User
+      summary: findOne
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - User
+      summary: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: student@gmail.com
+                password: '1234'
+                authorities:
+                  - teacher
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /user/1:
+    delete:
+      tags:
+        - User
+      summary: deleteOne
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /page/6545e6f875c67a2e7b231d7a:
+    get:
+      tags:
+        - Page
+      summary: findOne
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Page
+      summary: deleteOne
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - Page
+      summary: updateOne
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                location: 인천광역시 부평구
+                schoolName: 부평고등학교
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /page/list:
+    get:
+      tags:
+        - Page
+      summary: find
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /page:
+    post:
+      tags:
+        - Page
+      summary: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                location: 인천광역시 부평구 부평7동
+                schoolName: 부평최고중학교
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /news/list:
+    get:
+      tags:
+        - News
+      summary: find
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  "/news/\b6545e76075c67a2e7b231d88":
+    delete:
+      tags:
+        - News
+      summary: deleteOne
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /news/6545e76075c67a2e7b231d88:
+    put:
+      tags:
+        - News
+      summary: updateOne
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                title: news98
+                ownerId: '1234'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /news:
+    post:
+      tags:
+        - News
+      summary: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                title: news99
+                content: '1234'
+                pageId: 65430340d668b572348bfa1b
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /subscription/page/list:
+    get:
+      tags:
+        - Subscription
+      summary: findSubscribedPages
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /subscription/page/65430340d668b572348bfa1b/news/list:
+    get:
+      tags:
+        - Subscription
+      summary: findSubscribedPageNews
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /subscription/news/list:
+    get:
+      tags:
+        - Subscription
+      summary: findAllSubscribedPagesNews
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  "/subscription/\b6543570efec378474eb3b5c0":
+    delete:
+      tags:
+        - Subscription
+      summary: deleteOne
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /subscription:
+    post:
+      tags:
+        - Subscription
+      summary: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                pageId: 65430340d668b572348bfa1b
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
