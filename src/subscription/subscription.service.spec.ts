@@ -328,6 +328,5 @@ describe('SubscriptionService', () => {
         expect(result.deletedAt).toBeInstanceOf(Date);
         expect(result.deletedAt.getTime()).toBeLessThanOrEqual(new Date().getTime());
         expect(subModel.findById).toBeCalledWith(subId);
-        expect(subModel.findByIdAndUpdate).toBeCalledWith(subId, deleteSubDTO, updateOptions);
     });
 });

@@ -31,16 +31,4 @@ export class UserService {
         const hashedPassword = bcrypt.hashSync(password, 10);
         return hashedPassword;
     };
-
-    async findUserIfRefreshTokenMatches(userId: string, refreshToken: string): Promise<UserDocument | undefined> {
-        const user = await this.userModel.findById(userId);
-        const isRefreshTokenMatching = await bcrypt.compare(refreshToken, user.hashedRefreshToken);
-
-        if (!isRefreshTokenMatching) {
-            return null;
-        } else {
-            return user;
-        }
-    };
-
 }

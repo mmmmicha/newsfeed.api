@@ -4,20 +4,21 @@ import { LoginDTO } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { Payload } from './security/payload.interface';
 import { RefreshTokenDTO } from './dto/refreshToken.dto';
-import { UserService } from 'src/user/user.service';
 import { ConfigService } from '@nestjs/config';
-import { UserDocument } from 'src/model/user.model';
+import { User, UserDocument } from '../model/user.model';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class AuthService {
     constructor(
-        private userService: UserService,
+        @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
         private jwtService: JwtService,
         private configService: ConfigService
     ) {}
 
     async validate(loginInfo: LoginDTO): Promise<{ accessToken: string, refreshToken: string } | undefined> {
-        let existedUser = await this.userService.findOneByOptions({ email : loginInfo.email });
+        let existedUser = await this.userModel.findOne({ email : loginInfo.email });
         if (!existedUser) throw new UnauthorizedException();
 
         const isPasswordMatching = await bcrypt.compare(loginInfo.password, existedUser.password);
@@ -38,7 +39,7 @@ export class AuthService {
     }
 
     async tokenValidateUser(payload: Payload): Promise<UserDocument | undefined> {
-        let existedUser = this.userService.findOne(payload.userId);
+        let existedUser = this.userModel.findById(payload.userId);
         return existedUser;
     }
 
@@ -62,19 +63,23 @@ export class AuthService {
 
     private async updateRefreshTokenToUser(userId: string, refreshToken: string): Promise<void> {
         const hashdedRefreshToken = bcrypt.hashSync(refreshToken, 10);
-        await this.userService.updateOne(userId, { hashedRefreshToken: hashdedRefreshToken } as any);
+        await this.userModel.findByIdAndUpdate(userId, { hashedRefreshToken: hashdedRefreshToken } as any);
     }
 
     async removeRefreshToken(userId: string): Promise<void> {
-        await this.userService.updateOne(userId, { hashedRefreshToken: null } as any);
+        await this.userModel.findByIdAndUpdate(userId, { hashedRefreshToken: null } as any);
     }
 
     async refresh(refreshTokenDTO: RefreshTokenDTO): Promise<{ accessToken: string, refreshToken: string }> {
         const { refreshToken } = refreshTokenDTO;
+        let decodedRefreshToken: Payload
+        try {
+            decodedRefreshToken = this.jwtService.verify(refreshToken, { secret: this.configService.get<string>('REFRESH_TOKEN_SECRET') }) as Payload;
+        } catch (error) {
+            throw new UnauthorizedException(error.message);
+        }
     
-        const decodedRefreshToken = this.jwtService.verify(refreshToken, { secret: this.configService.get<string>('REFRESH_TOKEN_SECRET') }) as Payload;
-    
-        const user = await this.userService.findUserIfRefreshTokenMatches(decodedRefreshToken.userId, refreshToken);
+        const user = await this.findUserIfRefreshTokenMatches(decodedRefreshToken.userId, refreshToken);
         if (!user) {
           throw new UnauthorizedException('Invalid user!');
         }
@@ -88,4 +93,15 @@ export class AuthService {
             refreshToken: newRefreshToken
         };
     }
+
+    private async findUserIfRefreshTokenMatches(userId: string, refreshToken: string): Promise<UserDocument | undefined> {
+        const user = await this.userModel.findById(userId);
+        const isRefreshTokenMatching = await bcrypt.compare(refreshToken, user.hashedRefreshToken);
+
+        if (!isRefreshTokenMatching) {
+            return null;
+        } else {
+            return user;
+        }
+    };
 }

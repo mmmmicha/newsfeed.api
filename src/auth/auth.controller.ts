@@ -20,7 +20,7 @@ export class AuthController {
     @Post('/logout')
     @UseGuards(AuthGuard)
     async logout(@Req() req: Request, @Res() res: Response): Promise<any> {
-        await this.authService.removeRefreshToken((req as any).user['userId']);
+        await this.authService.removeRefreshToken(req.user['_id']);
         res.clearCookie('accessToken');
         res.clearCookie('refreshToken');
         return res.send({ message: 'ok' });
