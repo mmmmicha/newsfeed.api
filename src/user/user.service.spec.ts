@@ -21,7 +21,7 @@ const mockUser = {
     authorities: ['student']
 };
 
-const findingMockUser = {
+const filteringMockUser = {
     _id: 'mockUserId',
     email: 'student@gmail.com',
     authorities: ['student']
@@ -98,7 +98,7 @@ describe('UserService', () => {
 
         const result = await userService.findOne(userId);
 
-        expect(result).toEqual(findingMockUser);
+        expect(result).toEqual(filteringMockUser);
         expect(userModel.findById).toHaveBeenCalledWith(userId);
     });
 
@@ -106,11 +106,13 @@ describe('UserService', () => {
         const userId = 'mockUserId';
         const userModel = module.get(getModelToken(User.name));
 
-        userModel.findByIdAndDelete = jest.fn().mockResolvedValue(mockUser);
+        userModel.findByIdAndDelete = jest.fn().mockReturnValue({
+            lean: jest.fn().mockResolvedValue(mockUser)
+        }) 
 
         const result = await userService.deleteOne(userId);
 
-        expect(result).toEqual(mockUser);
+        expect(result).toEqual(filteringMockUser);
         expect(userModel.findByIdAndDelete).toHaveBeenCalledWith(userId);
     });
 });

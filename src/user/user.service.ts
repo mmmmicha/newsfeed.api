@@ -26,7 +26,10 @@ export class UserService {
     }
 
     async deleteOne(userId: string): Promise<UserDocument> {
-        return this.userModel.findByIdAndDelete(userId);
+        const user = await this.userModel.findByIdAndDelete(userId).lean();
+        delete user.password;
+        delete user.hashedRefreshToken;
+        return user;
     }
 
     private convertPasswordToHash(password: string): string {
