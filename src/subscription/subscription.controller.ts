@@ -14,7 +14,7 @@ export class SubscriptionController {
     @Post()
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(RoleType.STUDENT)
-    @UsePipes(ValidationPipe)
+    @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
     async create(@Body() createSubscriptionDTO: CreateSubscriptionDTO, @Req() req: Request, @Res() res: Response): Promise<any> {
         const userId = req.user['_id'];
         createSubscriptionDTO.userId = userId;

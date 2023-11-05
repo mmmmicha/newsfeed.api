@@ -10,7 +10,7 @@ export class AuthController {
     constructor(private authService: AuthService) {}
 
     @Post('/login')
-    @UsePipes(ValidationPipe)
+    @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
     async login(@Body() loginInfo: LoginDTO, @Res() res: Response): Promise<any> {
         const jwt = await this.authService.validate(loginInfo);
         res.cookie('accessToken', jwt.accessToken, { httpOnly: true });
@@ -28,7 +28,7 @@ export class AuthController {
     }
 
     @Post('/refresh')
-    @UsePipes(ValidationPipe)
+    @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
     async refreshToken(@Body() refreshTokenDTO: RefreshTokenDTO, @Res() res: Response): Promise<any> {
         const jwt = await this.authService.refresh(refreshTokenDTO);
         res.cookie('accessToken', jwt.accessToken, { httpOnly: true });

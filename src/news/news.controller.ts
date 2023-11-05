@@ -15,7 +15,7 @@ export class NewsController {
     @Post()
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(RoleType.TEACHER)
-    @UsePipes(ValidationPipe)
+    @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
     async create(@Body() createNewsDTO: CreateNewsDTO, @Req() req: Request, @Res() res: Response): Promise<any> {
         const userId = req.user['_id'];
         createNewsDTO.ownerId = userId;
@@ -35,7 +35,7 @@ export class NewsController {
     @Put(':newsId')
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(RoleType.TEACHER)
-    @UsePipes(ValidationPipe)
+    @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
     async updateOne(@Param('newsId') newsId: string, @Body() updateNewsDTO: UpdateNewsDTO, @Req() req: Request, @Res() res: Response): Promise<any> {
         const userId = req.user['_id'];
         updateNewsDTO.ownerId = userId;

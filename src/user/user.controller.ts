@@ -9,7 +9,7 @@ export class UserController {
     constructor(private userService: UserService) {}
 
     @Post()
-    @UsePipes(ValidationPipe)
+    @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
     async create(@Body() createUserDTO: CreateUserDTO, @Res() res: Response): Promise<any> {
         const payload = await this.userService.create(createUserDTO);
         return res.send({ message: 'ok', payload: payload });

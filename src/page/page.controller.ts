@@ -15,7 +15,7 @@ export class PageController {
     @Post()
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(RoleType.TEACHER)
-    @UsePipes(ValidationPipe)
+    @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
     async create(@Body() createPageDTO: CreatePageDTO, @Req() req: Request, @Res() res: Response): Promise<any> {
         const userId = req.user['_id'];
         createPageDTO.ownerId = userId;
@@ -42,8 +42,10 @@ export class PageController {
     @Put(':pageId')
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(RoleType.TEACHER)
-    @UsePipes(ValidationPipe)
-    async updateOne(@Param('pageId') pageId: string, @Body() updatePageDTO: UpdatePageDTO, @Res() res: Response): Promise<any> {
+    @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+    async updateOne(@Param('pageId') pageId: string, @Body() updatePageDTO: UpdatePageDTO, @Req() req: Request, @Res() res: Response): Promise<any> {
+        const userId = req.user['_id'];
+        updatePageDTO.ownerId = userId;
         const payload = await this.pageService.updateOne(pageId, updatePageDTO);
         return res.send({ message: 'ok', payload: payload });
     }
