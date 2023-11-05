@@ -20,7 +20,7 @@ export class NewsService {
     async create(createNewsDTO: CreateNewsDTO): Promise<NewsDocument | undefined> {
         const page = await this.pageModel.findById(createNewsDTO.pageId);
         if (!page) 
-            throw new NotFoundException('Not Found Page');
+            throw new NotFoundException('not found page');
         const news = new this.newsModel(createNewsDTO);
         return news.save();
     }
@@ -42,6 +42,6 @@ export class NewsService {
         const news = await this.newsModel.findById(filteredNewsId);
         if (ownerId.toString() !== news.ownerId)
             throw new UnauthorizedException('owner only can delete!');
-        return await this.newsModel.findByIdAndDelete(filteredNewsId);
+        return this.newsModel.findByIdAndDelete(filteredNewsId);
     }
 }

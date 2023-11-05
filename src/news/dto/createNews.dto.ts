@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateNewsDTO {
     @IsNotEmpty()
@@ -10,7 +10,7 @@ export class CreateNewsDTO {
     @IsNotEmpty()
     @IsString()
     pageId: string;
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     ownerId: string;
 }

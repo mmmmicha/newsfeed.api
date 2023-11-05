@@ -4,7 +4,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Subscription } from '../model/subscription.model';
 import { Page } from '../model/page.model';
 import { News } from '../model/news.model';
-import { HttpException, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 
 const mockSub = {
     _id: 'mockSubId',
@@ -199,8 +199,7 @@ describe('SubscriptionService', () => {
         try {
             await service.create(createSubDTO);
         } catch (error) {
-            expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
-            expect(error).toBeInstanceOf(HttpException);
+            expect(error).toBeInstanceOf(BadRequestException);
         }
     })
 

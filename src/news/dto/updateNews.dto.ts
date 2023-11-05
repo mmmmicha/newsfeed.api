@@ -7,6 +7,7 @@ export class UpdateNewsDTO {
     @IsOptional()
     @IsString()
     content?: string;
-    @IsNotEmpty()
+    @IsOptional()
+    @IsString()
     ownerId: string;
 }

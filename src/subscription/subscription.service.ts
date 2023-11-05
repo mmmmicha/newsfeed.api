@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Subscription, SubscriptionDocument } from '../model/subscription.model';
@@ -17,7 +17,7 @@ export class SubscriptionService {
     async create(createSubscriptionDTO: CreateSubscriptionDTO): Promise<SubscriptionDocument | undefined> {
         const subs = await this.subscriptionModel.find({ userId: createSubscriptionDTO.userId, pageId: createSubscriptionDTO.pageId, deletedAt: null });
         if (subs.length > 0)
-            throw new HttpException('Already exists subscription', HttpStatus.BAD_REQUEST);
+            throw new BadRequestException('already exists subscription');
         const newSub = new this.subscriptionModel(createSubscriptionDTO);
         return newSub.save();
     }
@@ -73,7 +73,7 @@ export class SubscriptionService {
         const sub = await this.subscriptionModel.findById(filteredSubscriptionId);
         
         if (userId.toString() !== sub.userId)
-            throw new UnauthorizedException('Owner can only delete subscription!');
+            throw new UnauthorizedException('owner can only delete subscription!');
         return this.subscriptionModel.findByIdAndUpdate(filteredSubscriptionId, { deletedAt: new Date() }, { returnOriginal: false });
     }
 }

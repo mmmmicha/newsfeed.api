@@ -81,7 +81,7 @@ export class AuthService {
     
         const user = await this.findUserIfRefreshTokenMatches(decodedRefreshToken.userId, refreshToken);
         if (!user) {
-          throw new UnauthorizedException('Invalid user!');
+          throw new UnauthorizedException('invalid user!');
         }
     
         const payload: Payload = { userId: decodedRefreshToken.userId, authorities: decodedRefreshToken.authorities };
