@@ -15,6 +15,11 @@ export class Page {
         required: true
     })
     schoolName: string;
+
+    @Prop({
+        required: true
+    })
+    ownerId: string;
 }
 
 export const PageSchema = SchemaFactory.createForClass(Page);

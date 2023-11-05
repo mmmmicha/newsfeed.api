@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { PageService } from './page.service';
 import { CreatePageDTO } from './dto/createPage.dto';
 import { AuthGuard } from '../auth/security/auth.guard';
 import { RolesGuard } from '../auth/security/roles.guard';
 import { Roles } from '../auth/decorator/role.decorator';
 import { RoleType } from '../auth/role-type';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { UpdatePageDTO } from './dto/updatePage.dto';
 
 @Controller('page')
@@ -49,8 +49,9 @@ export class PageController {
     @Delete(':pageId')
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(RoleType.TEACHER)
-    async deleteOne(@Param('pageId') pageId: string, @Res() res: Response): Promise<any> {
-        const payload = await this.pageService.deleteOne(pageId);
+    async deleteOne(@Param('pageId') pageId: string, @Req() req: Request, @Res() res: Response): Promise<any> {
+        const userId = req.user['_id'];
+        const payload = await this.pageService.deleteOne(pageId, userId);
         return res.send({ message: 'ok', payload: payload });
     }
 }

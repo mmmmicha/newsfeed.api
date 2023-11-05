@@ -105,6 +105,25 @@ describe('NewsService', () => {
         expect(newsModel.find).toBeCalled();
     })
 
+    it('should thorw NotFoundException when updating not found news', async () => {
+        const newsId = 'mockNewsId';
+        const updateNewsDTOWithDifferentOwnerId = {
+            title: 'bye!',
+            content: 'Bye world!',
+            pageId: 'mockPageId',
+            ownerId: 'differentOwnerId',
+        };
+
+        const newsModel = module.get(getModelToken(News.name));
+        newsModel.findById = jest.fn().mockResolvedValue(null);
+
+        try {
+            await service.updateOne(newsId, updateNewsDTOWithDifferentOwnerId);
+        } catch (error) {
+            expect(error).toBeInstanceOf(NotFoundException);
+        }
+    })
+
     it('should thorw UnauthorizedException when updating news with different ownerId', async () => {
         const newsId = 'mockNewsId';
         const updateNewsDTOWithDifferentOwnerId = {
@@ -146,6 +165,20 @@ describe('NewsService', () => {
         expect(result).toEqual(updatedMockNews);
         expect(newsModel.findById).toBeCalledWith(newsId);
         expect(newsModel.findByIdAndUpdate).toBeCalledWith(newsId, updateNewsDTO, updateOptions);
+    })
+
+    it('should thorw NotFoundException when deleting not found news', async () => {
+        const newsId = 'mockNewsId';
+        const differentOwnerId = 'differentOwnerId';
+        
+        const newsModel = module.get(getModelToken(News.name));
+        newsModel.findById = jest.fn().mockResolvedValue(null);
+
+        try {
+            await service.deleteOne(newsId, differentOwnerId);
+        } catch (error) {
+            expect(error).toBeInstanceOf(NotFoundException);
+        }
     })
 
     it('should thorw UnauthorizedException when deleting news with different ownerId', async () => {

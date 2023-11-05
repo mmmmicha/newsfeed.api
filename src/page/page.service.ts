@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Page, PageDocument } from '../model/page.model';
@@ -26,13 +26,20 @@ export class PageService {
     }
 
     async updateOne(pageId: string, updatePageDTO: UpdatePageDTO): Promise<PageDocument | undefined> {
-        const existedPage = await this.pageModel.findOne({ location: updatePageDTO.location });
-        if (existedPage)
-            throw new BadRequestException('already exists page with same location');
+        const page = await this.pageModel.findById(pageId);
+        if (!page)
+            throw new NotFoundException('not found page');
+        if (updatePageDTO.ownerId.toString() !== page.ownerId)
+            throw new UnauthorizedException('owner only can update page');
         return this.pageModel.findByIdAndUpdate(pageId, updatePageDTO, { returnOriginal: false });
     }
 
-    async deleteOne(pageId: string): Promise<PageDocument | undefined> {
+    async deleteOne(pageId: string, ownerId: string): Promise<PageDocument | undefined> {
+        const page = await this.pageModel.findById(pageId);
+        if (!page)
+            throw new NotFoundException('not found page');
+        if (ownerId.toString() !== page.ownerId)
+            throw new UnauthorizedException('owner only can delete page');
         return this.pageModel.findByIdAndDelete(pageId);
     }
 }

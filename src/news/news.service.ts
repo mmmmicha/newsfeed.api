@@ -27,6 +27,8 @@ export class NewsService {
 
     async updateOne(newsId: string, updateNewsDTO: UpdateNewsDTO): Promise<NewsDocument | undefined> {
         const news = await this.newsModel.findById(newsId);
+        if (!news)
+            throw new NotFoundException('not found news');
         if (updateNewsDTO.ownerId.toString() !== news.ownerId)
             throw new UnauthorizedException('owner only can update!');
         delete updateNewsDTO.ownerId;
@@ -40,6 +42,8 @@ export class NewsService {
         // 임시방편으로 replace 문 적용
         const filteredNewsId = newsId.replace("\b", "");
         const news = await this.newsModel.findById(filteredNewsId);
+        if (!news)
+            throw new NotFoundException('not found news');
         if (ownerId.toString() !== news.ownerId)
             throw new UnauthorizedException('owner only can delete!');
         return this.newsModel.findByIdAndDelete(filteredNewsId);
