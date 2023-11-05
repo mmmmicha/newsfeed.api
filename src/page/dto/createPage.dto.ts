@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreatePageDTO {
     @IsNotEmpty()
@@ -7,4 +7,7 @@ export class CreatePageDTO {
     @IsNotEmpty()
     @IsString()
     schoolName: string;
+    @IsOptional()
+    @IsString()
+    ownerId: string;
 }

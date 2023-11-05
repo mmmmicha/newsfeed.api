@@ -43,7 +43,8 @@ describe('PageService', () => {
     it('should thorw BadRequestException when creating with existing location', async () => {
         const createPageDTO = {
             location: '인천광역시 부평구 충선로 19',
-            schoolName: '부평고등학교'
+            schoolName: '부평고등학교',
+            ownerId: 'mockUserId',
         };
 
         const pageModel = module.get(getModelToken(Page.name));
@@ -59,7 +60,8 @@ describe('PageService', () => {
     it('should create a new page', async () => {
         const createPageDTO = {
             location: '인천광역시 부평구 충선로 19',
-            schoolName: '부평고등학교'
+            schoolName: '부평고등학교',
+            ownerId: 'mockUserId',
         };
         const queryOptions = {
             location: createPageDTO.location

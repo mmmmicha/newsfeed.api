@@ -16,7 +16,9 @@ export class PageController {
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(RoleType.TEACHER)
     @UsePipes(ValidationPipe)
-    async create(@Body() createPageDTO: CreatePageDTO, @Res() res: Response): Promise<any> {
+    async create(@Body() createPageDTO: CreatePageDTO, @Req() req: Request, @Res() res: Response): Promise<any> {
+        const userId = req.user['_id'];
+        createPageDTO.ownerId = userId;
         const payload = await this.pageService.create(createPageDTO);
         return res.send({ message: 'ok', payload: payload });
     }
