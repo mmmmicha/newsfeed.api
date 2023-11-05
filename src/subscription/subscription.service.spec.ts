@@ -4,7 +4,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Subscription } from '../model/subscription.model';
 import { Page } from '../model/page.model';
 import { News } from '../model/news.model';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
 const mockSub = {
     _id: 'mockSubId',
@@ -187,12 +187,32 @@ describe('SubscriptionService', () => {
         expect(service).toBeDefined();
     });
 
-    it('should throw HttpException with HttpStatus.BAD_REQUEST when creating a subscription with existing subscriptions', async () => {
+    it('should throw NotFoundException when creating a subscription with not found page id', async () => {
         const createSubDTO = {
             userId: 'mockUserId',
             pageId: 'mockPageId',
         }
 
+        const pageModel = module.get(getModelToken(Page.name));
+        pageModel.findById = jest.fn().mockResolvedValue(null);
+        const subModel = module.get(getModelToken(Subscription.name));
+        subModel.find = jest.fn().mockResolvedValue([]);
+
+        try {
+            await service.create(createSubDTO);
+        } catch (error) {
+            expect(error).toBeInstanceOf(NotFoundException);
+        }
+    })
+
+    it('should throw BadRequestException when creating a subscription with existing subscriptions', async () => {
+        const createSubDTO = {
+            userId: 'mockUserId',
+            pageId: 'mockPageId',
+        }
+
+        const pageModel = module.get(getModelToken(Page.name));
+        pageModel.findById = jest.fn().mockResolvedValue(mockPage);
         const subModel = module.get(getModelToken(Subscription.name));
         subModel.find = jest.fn().mockResolvedValue([mockSub]);
 
@@ -214,6 +234,8 @@ describe('SubscriptionService', () => {
             deletedAt: null
         }
 
+        const pageModel = module.get(getModelToken(Page.name));
+        pageModel.findById = jest.fn().mockResolvedValue(mockPage);
         const subModel = module.get(getModelToken(Subscription.name));
         subModel.find = jest.fn().mockResolvedValue([]);
         const createdMockSub = { ...createSubDTO, ...mockSub };
@@ -222,6 +244,7 @@ describe('SubscriptionService', () => {
         const result = await service.create(createSubDTO);
 
         expect(result).toEqual(createdMockSub);
+        expect(pageModel.findById).toBeCalledWith(createSubDTO.pageId);
         expect(subModel.find).toBeCalledWith(queryOptions);
         expect(subModel.prototype.save).toBeCalled();
     })

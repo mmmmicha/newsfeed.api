@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Subscription, SubscriptionDocument } from '../model/subscription.model';
@@ -16,6 +16,9 @@ export class SubscriptionService {
 
     async create(createSubscriptionDTO: CreateSubscriptionDTO): Promise<SubscriptionDocument | undefined> {
         const subs = await this.subscriptionModel.find({ userId: createSubscriptionDTO.userId, pageId: createSubscriptionDTO.pageId, deletedAt: null });
+        const page = await this.pageModel.findById(createSubscriptionDTO.pageId);
+        if (!page)
+            throw new NotFoundException('not found page');
         if (subs.length > 0)
             throw new BadRequestException('already exists subscription');
         const newSub = new this.subscriptionModel(createSubscriptionDTO);
