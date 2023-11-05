@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Page, PageDocument } from '../model/page.model';
@@ -10,6 +10,9 @@ export class PageService {
     constructor(@InjectModel(Page.name) private readonly pageModel: Model<PageDocument>) {}
 
     async create(createPageDTO: CreatePageDTO): Promise<PageDocument | undefined> {
+        const existedPage = await this.pageModel.findOne({ location: createPageDTO.location });
+        if (existedPage)
+            throw new BadRequestException('already exists page with same location');
         const newPage = new this.pageModel(createPageDTO);
         return newPage.save();
     }
@@ -23,6 +26,9 @@ export class PageService {
     }
 
     async updateOne(pageId: string, updatePageDTO: UpdatePageDTO): Promise<PageDocument | undefined> {
+        const existedPage = await this.pageModel.findOne({ location: updatePageDTO.location });
+        if (existedPage)
+            throw new BadRequestException('already exists page with same location');
         return this.pageModel.findByIdAndUpdate(pageId, updatePageDTO, { returnOriginal: false });
     }
 
