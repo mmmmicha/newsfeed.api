@@ -1,284 +1,1620 @@
 openapi: 3.0.0
 info:
-  title: classting
+  title: newsfeed.api
   version: 1.0.0
 servers:
   - url: http://{{url}}
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-security:
-  - bearerAuth: []
 tags:
   - name: Auth
+    description: 로그인(토큰 생성), 로그아웃(토큰 소멸), 토큰 리프레시 등 api 서버 사용 자격을 위한 api 입니다. 
   - name: User
+    description: 유저 생성, 조회, 삭제 등을 할 수 있는 api 입니다. '학생', '선생'에 대한 권한을 선택하게 됩니다.
   - name: Page
+    description: 학교 페이지를 생성, 조회, 수정, 삭제 등을 할 수 있는 api 입니다. '선생' 권한을 갖는 유저만 이용이 가능합니다.
   - name: News
+    description: 학교 페이지 내 소식을 생성, 조회, 수정, 삭제 등을 할 수 있는 api 입니다. '선생' 권한을 갖는 유저만 이용이 가능합니다.
   - name: Subscription
+    description: 학교 페이지에 대한 구독을 처리하는 api 입니다. 구독하기, 구독조회, 구독취소, 구독한 페이지 리스트 조회, 구독한 페이지 내 소식 리스트 조회, 구독한 모든 페이지에 대한 소식 조회 등을 할 수 있는 api 입니다. '학생' 권한을 갖는 유저만 이용이 가능합니다.
 paths:
   /auth/login:
     post:
       tags:
         - Auth
       summary: login
+      description: 로그인을 통해 'accessToken', 'refreshToke' 을 얻을 수 있습니다. responseBody(앱 전용) 와 response cookie(웹 전용) 를 통해 주어지기 때문에 상황에 맞게 사용할 수 있습니다.
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              example:
-                email: student@gmail.com
-                password: '1234'
+              properties:
+                email:
+                  type: string
+                  description: 이메일
+                  example: student@gmail.com
+                password:
+                  type: string
+                  minLength: 8
+                  maxLength: 15
+                  description: 비밀번호
+                  example: '12341234'
+              required:
+                - email
+                - password
       responses:
         '201':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      accessToken: 
+                        type: string
+                        description: 엑세스 토큰 (만료기한 1시간)
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTQzNTU0OGRlNzQ1OGQxMWU0MWNhMzciLCJhdXRob3JpdGllcyI6WyJzdHVkZW50Il0sImlhdCI6MTY5OTEwOTc5NSwiZXhwIjoxNjk5MTEzMzk1fQ.2CX7TCO_aWAgoV0W7o2kwbRkCw7p_mcFjxdHYKvAQhU'
+                      refreshToken: 
+                        type: string
+                        description: 리프레시 토큰 (만료기한 30일)
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTQzNTU0OGRlNzQ1OGQxMWU0MWNhMzciLCJhdXRob3JpdGllcyI6WyJzdHVkZW50Il0sImlhdCI6MTY5OTEwOTc5NSwiZXhwIjoxNzAxNzAxNzk1fQ.yrkYW0KFu6ETQGWfq2Pi72gHDoSG2-q0gkVfglBHpdk'
+                    required:
+                      - accessToken
+                      - refreshToken
+        '400':
+          description: BadRequest
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 400
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'invalid parameter'
+        '401':
+          description: Unauthorized
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 401
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'Unauthorized'
   /auth/refresh:
     post:
       tags:
         - Auth
       summary: refresh
+      description: refreshToken 을 통한 리프레시로 인해 새로운 'accessToken', 'refreshToken' 을 얻게 됩니다.
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              example:
-                refreshToken: '{{refreshToken}}'
+              properties:
+                refreshToken: 
+                  type: string
+                  description: 리프레시 토큰
+                  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTQzNTU0OGRlNzQ1OGQxMWU0MWNhMzciLCJhdXRob3JpdGllcyI6WyJzdHVkZW50Il0sImlhdCI6MTY5OTEwOTc5NSwiZXhwIjoxNzAxNzAxNzk1fQ.yrkYW0KFu6ETQGWfq2Pi72gHDoSG2-q0gkVfglBHpdk'
+              required:
+                - refreshToken
       responses:
         '201':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      accessToken: 
+                        type: string
+                        description: 엑세스 토큰 (만료기한 1시간)
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTQzNTU0OGRlNzQ1OGQxMWU0MWNhMzciLCJhdXRob3JpdGllcyI6WyJzdHVkZW50Il0sImlhdCI6MTY5OTEwOTc5NSwiZXhwIjoxNjk5MTEzMzk1fQ.2CX7TCO_aWAgoV0W7o2kwbRkCw7p_mcFjxdHYKvAQhU'
+                      refreshToken: 
+                        type: string
+                        description: 리프레시 토큰 (만료기한 30일)
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTQzNTU0OGRlNzQ1OGQxMWU0MWNhMzciLCJhdXRob3JpdGllcyI6WyJzdHVkZW50Il0sImlhdCI6MTY5OTEwOTc5NSwiZXhwIjoxNzAxNzAxNzk1fQ.yrkYW0KFu6ETQGWfq2Pi72gHDoSG2-q0gkVfglBHpdk'
+                    required:
+                      - accessToken
+                      - refreshToken
+        '400':
+          description: BadRequest
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 400
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'invalid parameter'
+        '401':
+          description: Unauthorized
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 401
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'Unauthorized'
   /auth/logout:
     post:
       tags:
         - Auth
       summary: logout
+      description: 로그아웃을 통해 유저 데이터베이스 내 'hashedRefreshToken' 을 삭제합니다. 또한 response cookie 에 저장되는 'accessToken', 'refreshToken' 을 삭제합니다.
+      security:
+        - bearerToken: []
       requestBody:
         content: {}
       responses:
         '201':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+        '401':
+          description: Unauthorized
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 401
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'Unauthorized'
   /user:
     get:
       tags:
         - User
       summary: findOne
+      description: 액세스 토큰을 기반으로 유저 본인의 정보를 조회합니다.
+      security:
+        - bearerToken: []
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id: 
+                          type: string
+                          description: 유저 아이디
+                          example: '6546543aea15926439acdd34'
+                        email: 
+                          type: string
+                          description: 이메일
+                          example: 'student@gmail.com'
+                        authorities: 
+                          type: array
+                          description: 권한 정보
+                          items:
+                            type: string
+                          enum:
+                            - teacher
+                            - student
+                          example:
+                            - student
+                        __v:
+                          type: number
+                          description: mongoose version key
+                          example: 0
+                      required:
+                        - _id
+                        - email
+                        - authorities
     post:
       tags:
         - User
       summary: create
+      description: 이메일, 비밀번호, 권한선택(선생, 학생)을 통해 유저를 생성합니다.
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              example:
-                email: student@gmail.com
-                password: '1234'
-                authorities:
-                  - teacher
+              properties:
+                email: 
+                  type: string
+                  description: 이메일
+                  example: student@gmail.com
+                password: 
+                  type: string
+                  description: 비밀번호
+                  example: '12341234'
+                authorities: 
+                  type: array
+                  description: 권한 정보
+                  items:
+                    type: string
+                  enum:
+                    - teacher
+                    - student
+                  example:
+                    - student
+              required:
+                - email
+                - password
+                - authorities
       responses:
-        '200':
+        '201':
           description: Successful response
           content:
-            application/json: {}
-  /user/1:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        description: 유저 아이디
+                        example: '6546543aea15926439acdd34'
+                      email: 
+                        type: string
+                        description: 이메일
+                        example: 'student@gmail.com'
+                      password: 
+                        type: string
+                        description: 비밀번호 (해시화됨)
+                        example: '$2b$10$Let28NVyyqIB4u0bI8ZnherfjXXHiy3v9Ykz1B.jxkXMoJ6bVs38O'
+                      authorities: 
+                        type: array
+                        description: 권한 정보
+                        items:
+                          type: string
+                        enum:
+                          - teacher
+                          - student
+                        example:
+                          - student
+                      __v:
+                        type: number
+                        description: mongoose version key
+                        example: 0
+                    required:
+                      - _id
+                      - authorities
+        '400':
+          description: BadRequest
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 400
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'already exists email / invalid parameter'
     delete:
       tags:
         - User
       summary: deleteOne
+      description: 액세스 토큰을 기반으로 유저 정보를 삭제합니다.
+      security:
+        - bearerToken: []
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
-  /page/6545e6f875c67a2e7b231d7a:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        description: 유저 아이디
+                        example: '6546543aea15926439acdd34'
+                      email: 
+                        type: string
+                        description: 이메일
+                        example: 'student@gmail.com'
+                      authorities: 
+                        type: array
+                        description: 권한 정보
+                        items:
+                          type: string
+                        enum:
+                          - teacher
+                          - student
+                        example:
+                          - student
+                      __v:
+                        type: number
+                        description: mongoose version key
+                        example: 0
+                    required:
+                      - _id
+                      - email
+                      - authorities
+  /page/{pageId}:
     get:
       tags:
         - Page
       summary: findOne
+      description: 페이지 아이디를 기반으로 해당 페이지를 조회합니다.
+      security:
+        - bearerToken: []
+      parameters:
+        - name: pageId
+          in: path
+          description: 페이지 아이디
+          required: true
+          schema:
+            type: string
+            example: '65430340d668b572348bfa1b'
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        description: 페이지 아이디
+                        example: '65430340d668b572348bfa1b'
+                      location: 
+                        type: string
+                        description: 지역
+                        example: '인천광역시 부평구 부평5동'
+                      schoolName:
+                        type: string
+                        description: 학교 이름
+                        example: 부평남중학교
+                      ownerId:
+                        type: string
+                        description: 생성 유저 아이디
+                        example: '6545cc0d727a062e0ad7edb6'
+                      __v:
+                        type: number
+                        description: mongoose version key
+                        example: 0
+                    required:
+                      - _id
+                      - location
+                      - schoolName
+                      - ownerId
+        '400':
+          description: BadRequest
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 400
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'invalid parameter'
     delete:
       tags:
         - Page
       summary: deleteOne
+      description: 페이지 아이디를 기반으로 페이지를 삭제합니다.
+      security:
+        - bearerToken: []
+      parameters:
+        - name: pageId
+          in: path
+          description: 페이지 아이디
+          required: true
+          schema:
+            type: string
+            example: '65430340d668b572348bfa1b'
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        description: 페이지 아이디
+                        example: '65430340d668b572348bfa1b'
+                      location: 
+                        type: string
+                        description: 지역
+                        example: '인천광역시 부평구 부평5동'
+                      schoolName:
+                        type: string
+                        description: 학교 이름
+                        example: 부평남중학교
+                      ownerId:
+                        type: string
+                        description: 생성 유저 아이디
+                        example: '6545cc0d727a062e0ad7edb6'
+                      __v:
+                        type: number
+                        description: mongoose version key
+                        example: 0
+                    required:
+                      - _id
+                      - location
+                      - schoolName
+                      - ownerId
+        '400':
+          description: BadRequest
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 400
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'invalid parameter'
+        '401':
+          description: Unauthorized
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 401
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'owner can only delete page'
+        '404':
+          description: NotFound
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 404
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'not found page'
     put:
       tags:
         - Page
       summary: updateOne
+      description: 페이지 아이디를 기반으로 해당 페이지를 수정합니다.
+      security:
+        - bearerToken: []
+      parameters:
+        - name: pageId
+          in: path
+          description: 페이지 아이디
+          required: true
+          schema:
+            type: string
+            example: '65430340d668b572348bfa1b'
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              example:
-                location: 인천광역시 부평구
-                schoolName: 부평고등학교
+              properties:
+                schoolName:
+                  type: string
+                  description: 학교 이름
+                  example: 부평남중학교
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        description: 페이지 아이디
+                        example: '65430340d668b572348bfa1b'
+                      location: 
+                        type: string
+                        description: 지역
+                        example: '인천광역시 부평구 부평5동'
+                      schoolName:
+                        type: string
+                        description: 학교 이름
+                        example: 부평남중학교
+                      ownerId:
+                        type: string
+                        description: 생성 유저 아이디
+                        example: '6545cc0d727a062e0ad7edb6'
+                      __v:
+                        type: number
+                        description: mongoose version key
+                        example: 0
+                    required:
+                      - _id
+                      - location
+                      - schoolName
+                      - ownerId
+        '400':
+          description: BadRequest
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 400
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'invalid parameter'
+        '401':
+          description: Unauthorized
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 401
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'owner can only update page'
+        '404':
+          description: NotFound
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 404
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'not found page'
   /page/list:
     get:
       tags:
         - Page
       summary: find
+      description: 페이지 리스트를 조회합니다.(테스트에 용이하도록 만들었습니다.)
+      security:
+        - bearerToken: []
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id: 
+                          type: string
+                          description: 페이지 아이디
+                          example: '65430340d668b572348bfa1b'
+                        location: 
+                          type: string
+                          description: 지역
+                          example: '인천광역시 부평구 부평5동'
+                        schoolName:
+                          type: string
+                          description: 학교 이름
+                          example: 부평남중학교
+                        ownerId:
+                          type: string
+                          description: 생성 유저 아이디
+                          example: '6545cc0d727a062e0ad7edb6'
+                        __v:
+                          type: number
+                          description: mongoose version key
+                          example: 0
+                      required:
+                        - _id
+                        - location
+                        - schoolName
+                        - ownerId
   /page:
     post:
       tags:
         - Page
       summary: create
+      description: 페이지를 생성합니다.
+      security:
+        - bearerToken: []
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              example:
-                location: 인천광역시 부평구 부평7동
-                schoolName: 부평최고중학교
+              properties:
+                location: 
+                  type: string
+                  description: 지역
+                  example: '인천광역시 부평구 부평5동'
+                schoolName:
+                  type: string
+                  description: 학교 이름
+                  example: 부평남중학교
+              required:
+                - location
+                - schoolName
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        description: 페이지 아이디
+                        example: '65430340d668b572348bfa1b'
+                      location: 
+                        type: string
+                        description: 지역
+                        example: '인천광역시 부평구 부평5동'
+                      schoolName:
+                        type: string
+                        description: 학교 이름
+                        example: 부평남중학교
+                      ownerId:
+                        type: string
+                        description: 생성 유저 아이디
+                        example: '6545cc0d727a062e0ad7edb6'
+                      __v:
+                        type: number
+                        description: mongoose version key
+                        example: 0
+                    required:
+                      - _id
+                      - location
+                      - schoolName
+                      - ownerId
+        '400':
+          description: BadRequest
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 400
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'already exists page with same location / invalid parameter'
   /news/list:
     get:
       tags:
         - News
       summary: find
+      description: 생성된 모든 소식 리스트를 조회합니다.(테스트가 용이하도록 만들었습니다.)
+      security:
+        - bearerToken: []
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
-  "/news/\b6545e76075c67a2e7b231d88":
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id: 
+                          type: string
+                          description: 소식 아이디
+                          example: '6543558fde7458d11e41ca46'
+                        title:
+                          type: string
+                          description: 소식 제목
+                          example: 'news1'
+                        content:
+                          type: string
+                          description: 소식 내용
+                          example: '1234'
+                        ownerId: 
+                          type: string
+                          description: 작성자 아이디
+                          example: '65427726d3386076a5651f65'
+                        pageId:
+                          type: string
+                          description: 페이지 아이디
+                          example: '65430340d668b572348bfa1b'
+                        createdAt:
+                          type: date
+                          description: 생성 일자 (UTC + 0000)
+                          example: '2023-11-02T07:52:17.399Z'
+                        updatedAt:
+                          type: date
+                          description: 수정 일자 (UTC + 0000)
+                          example: '2023-11-02T07:52:17.399Z'
+                        __v:
+                          type: number
+                          description: mongoose version key
+                          example: 0
+                      required:
+                        - _id
+                        - title
+                        - ownerId
+                        - pageId
+                        - createdAt
+                        - updatedAt
+  /news/{newsId}:
     delete:
       tags:
         - News
       summary: deleteOne
+      description: 소식 아이디를 기반으로 소식을 삭제합니다.
+      security:
+        - bearerToken: []
+      parameters:
+        - name: newsId
+          in: path
+          description: 소식 아이디
+          required: true
+          schema:
+            type: string
+            example: '6543558fde7458d11e41ca46'
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
-  /news/6545e76075c67a2e7b231d88:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        description: 소식 아이디
+                        example: '6543558fde7458d11e41ca46'
+                      title:
+                        type: string
+                        description: 소식 제목
+                        example: 'news1'
+                      content:
+                        type: string
+                        description: 소식 내용
+                        example: '1234'
+                      ownerId: 
+                        type: string
+                        description: 작성자 아이디
+                        example: '65427726d3386076a5651f65'
+                      pageId:
+                        type: string
+                        description: 페이지 아이디
+                        example: '65430340d668b572348bfa1b'
+                      createdAt:
+                        type: date
+                        description: 생성 일자 (UTC + 0000)
+                        example: '2023-11-02T07:52:17.399Z'
+                      updatedAt:
+                        type: date
+                        description: 수정 일자 (UTC + 0000)
+                        example: '2023-11-02T07:52:17.399Z'
+                      __v:
+                        type: number
+                        description: mongoose version key
+                        example: 0
+                    required:
+                      - _id
+                      - title
+                      - ownerId
+                      - pageId
+                      - createdAt
+                      - updatedAt
+        '400':
+          description: BadRequest
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 400
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'invalid parameter'
+        '401':
+          description: Unauthorized
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 401
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'owner can only delete news'
+        '404':
+          description: NotFound
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 404
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'not found news'
     put:
       tags:
         - News
       summary: updateOne
+      description: 소식 아이디를 기반으로 소식을 수정합니다.
+      security:
+        - bearerToken: []
+      parameters:
+        - name: newsId
+          in: path
+          description: 소식 아이디
+          required: true
+          schema:
+            type: string
+            example: '6543558fde7458d11e41ca46'
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              example:
-                title: news98
-                ownerId: '1234'
+              properties:
+                title:
+                  type: string
+                  description: 소식 제목
+                  example: 'news1'
+                content:
+                  type: string
+                  description: 소식 내용
+                  example: '1234'
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        description: 소식 아이디
+                        example: '6543558fde7458d11e41ca46'
+                      title:
+                        type: string
+                        description: 소식 제목
+                        example: 'news1'
+                      content:
+                        type: string
+                        description: 소식 내용
+                        example: '1234'
+                      ownerId: 
+                        type: string
+                        description: 작성자 아이디
+                        example: '65427726d3386076a5651f65'
+                      pageId:
+                        type: string
+                        description: 페이지 아이디
+                        example: '65430340d668b572348bfa1b'
+                      createdAt:
+                        type: date
+                        description: 생성 일자 (UTC + 0000)
+                        example: '2023-11-02T07:52:17.399Z'
+                      updatedAt:
+                        type: date
+                        description: 수정 일자 (UTC + 0000)
+                        example: '2023-11-02T07:52:17.399Z'
+                      __v:
+                        type: number
+                        description: mongoose version key
+                        example: 0
+                    required:
+                      - _id
+                      - title
+                      - ownerId
+                      - pageId
+                      - createdAt
+                      - updatedAt
+        '400':
+          description: BadRequest
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 400
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'invalid parameter'
+        '401':
+          description: Unauthorized
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 401
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'owner can only update news'
+        '404':
+          description: NotFound
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 404
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'not found news'
   /news:
     post:
       tags:
         - News
       summary: create
+      description: 특정 페이지에 소식을 생성합니다.
+      security:
+        - bearerToken: []
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              example:
-                title: news99
-                content: '1234'
-                pageId: 65430340d668b572348bfa1b
+              properties:
+                title:
+                  type: string
+                  description: 소식 제목
+                  example: 'news1'
+                content:
+                  type: string
+                  description: 소식 내용
+                  example: '1234'
+                pageId:
+                  type: string
+                  description: 페이지 아이디
+                  example: '65430340d668b572348bfa1b'
+              required:
+                - title
+                - pageId
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        description: 소식 아이디
+                        example: '6543558fde7458d11e41ca46'
+                      title:
+                        type: string
+                        description: 소식 제목
+                        example: 'news1'
+                      content:
+                        type: string
+                        description: 소식 내용
+                        example: '1234'
+                      ownerId: 
+                        type: string
+                        description: 작성자 아이디
+                        example: '65427726d3386076a5651f65'
+                      pageId:
+                        type: string
+                        description: 페이지 아이디
+                        example: '65430340d668b572348bfa1b'
+                      createdAt:
+                        type: date
+                        description: 생성 일자 (UTC + 0000)
+                        example: '2023-11-02T07:52:17.399Z'
+                      updatedAt:
+                        type: date
+                        description: 수정 일자 (UTC + 0000)
+                        example: '2023-11-02T07:52:17.399Z'
+                      __v:
+                        type: number
+                        description: mongoose version key
+                        example: 0
+                    required:
+                      - _id
+                      - title
+                      - ownerId
+                      - pageId
+                      - createdAt
+                      - updatedAt
+        '400':
+          description: BadRequest
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 400
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'invalid parameter'
+        '404':
+          description: NotFound
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 404
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'not found page'
   /subscription/page/list:
     get:
       tags:
         - Subscription
       summary: findSubscribedPages
+      description: 구독한 모든 페이지를 조회합니다.
+      security:
+        - bearerToken: []
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
-  /subscription/page/65430340d668b572348bfa1b/news/list:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id: 
+                          type: string
+                          description: 페이지 아이디
+                          example: '65430340d668b572348bfa1b'
+                        location: 
+                          type: string
+                          description: 지역
+                          example: '인천광역시 부평구 부평5동'
+                        schoolName:
+                          type: string
+                          description: 학교 이름
+                          example: 부평남중학교
+                        subscriptionId:
+                          type: string
+                          description: 구독 아이디
+                          example: '65435a5b0692d7cba8a9f051'
+                        __v:
+                          type: number
+                          description: mongoose version key
+                          example: 0
+                      required:
+                        - _id
+                        - location
+                        - schoolName
+                        - subscriptionId
+  /subscription/page/{pageId}/news/list:
     get:
       tags:
         - Subscription
       summary: findSubscribedPageNews
+      description: 구독한 특정 페이지의 소식들을 최신순으로 조회합니다.
+      security:
+        - bearerToken: []
+      parameters:
+        - name: pageId
+          in: path
+          description: 페이지 아이디
+          required: true
+          schema:
+            type: string
+            example: '65430340d668b572348bfa1b'
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id: 
+                          type: string
+                          description: 소식 아이디
+                          example: '6543558fde7458d11e41ca46'
+                        title:
+                          type: string
+                          description: 소식 제목
+                          example: 'news1'
+                        content:
+                          type: string
+                          description: 소식 내용
+                          example: '1234'
+                        ownerId: 
+                          type: string
+                          description: 작성자 아이디
+                          example: '65427726d3386076a5651f65'
+                        pageId:
+                          type: string
+                          description: 페이지 아이디
+                          example: '65430340d668b572348bfa1b'
+                        createdAt:
+                          type: date
+                          description: 생성 일자 (UTC + 0000)
+                          example: '2023-11-02T07:52:17.399Z'
+                        updatedAt:
+                          type: date
+                          description: 수정 일자 (UTC + 0000)
+                          example: '2023-11-02T07:52:17.399Z'
+                        __v:
+                          type: number
+                          description: mongoose version key
+                          example: 0
+                      required:
+                        - _id
+                        - title
+                        - ownerId
+                        - pageId
+                        - createdAt
+                        - updatedAt
   /subscription/news/list:
     get:
       tags:
         - Subscription
       summary: findAllSubscribedPagesNews
+      description: 구독한 모든 페이지들의 소식들을 최신순으로 조회합니다.
+      security:
+        - bearerToken: []
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
-  "/subscription/\b6543570efec378474eb3b5c0":
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id: 
+                          type: string
+                          description: 소식 아이디
+                          example: '6543558fde7458d11e41ca46'
+                        title:
+                          type: string
+                          description: 소식 제목
+                          example: 'news1'
+                        content:
+                          type: string
+                          description: 소식 내용
+                          example: '1234'
+                        ownerId: 
+                          type: string
+                          description: 작성자 아이디
+                          example: '65427726d3386076a5651f65'
+                        pageId:
+                          type: string
+                          description: 페이지 아이디
+                          example: '65430340d668b572348bfa1b'
+                        createdAt:
+                          type: date
+                          description: 생성 일자 (UTC + 0000)
+                          example: '2023-11-02T07:52:17.399Z'
+                        updatedAt:
+                          type: date
+                          description: 수정 일자 (UTC + 0000)
+                          example: '2023-11-02T07:52:17.399Z'
+                        __v:
+                          type: number
+                          description: mongoose version key
+                          example: 0
+                      required:
+                        - _id
+                        - title
+                        - ownerId
+                        - pageId
+                        - createdAt
+                        - updatedAt
+  /subscription/{subscriptionId}":
     delete:
       tags:
         - Subscription
       summary: deleteOne
+      description: 구독 아이디를 기반으로 구독을 해지합니다.
+      security:
+        - bearerToken: []
+      parameters:
+        - name: subscriptionId
+          in: path
+          description: 구독 아이디
+          required: true
+          schema:
+            type: string
+            example: '65435a5b0692d7cba8a9f051'
       responses:
         '200':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        description: 구독 아이디
+                        example: 65435a5b0692d7cba8a9f051
+                      userId: 
+                        type: string
+                        description: 유저 아이디
+                        example: 65435548de7458d11e41ca37
+                      pageId: 
+                        type: string
+                        description: 페이지 아이디
+                        example: 65430340d668b572348bfa1b
+                      createdAt:
+                        type: date
+                        description: 구독 일자 (UTC+0000)
+                        example: '2023-11-02T08:13:35.330Z'
+                      updatedAt: 
+                        type: date
+                        description: 구독 정보 변경 일자 (UTC+0000)
+                        example: '2023-11-05T08:30:16.208Z'
+                      deletedAt:
+                        type: date
+                        description: 구독 취소 일자 (UTC+0000)
+                        example: '2023-11-05T08:30:16.207Z'
+                      __v:
+                          type: number
+                          description: mongoose version key
+                          example: 0
+                    required:
+                      - _id
+                      - userId
+                      - pageId
+                      - createdAt
+                      - updatedAt
+        '400':
+          description: BadRequest
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 400
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'invalid parameter'
+        '401':
+          description: Unauthorized
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 401
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'owner can only delete subscription!'
   /subscription:
     post:
       tags:
         - Subscription
       summary: create
+      description: 특정 페이지를 구독합니다.
+      security:
+        - bearerToken: []
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              example:
-                pageId: 65430340d668b572348bfa1b
+              properties:
+                pageId:
+                  type: string 
+                  description: 페이지 아이디
+                  example: 65430340d668b572348bfa1b
+              required:
+                - pageId
       responses:
-        '200':
+        '201':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 메시지
+                    example: 'ok'
+                  payload:
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        description: 구독 아이디
+                        example: 654754f1dc09cf02fbd1daaa
+                      userId: 
+                        type: string
+                        description: 유저 아이디
+                        example: 65435548de7458d11e41ca37
+                      pageId: 
+                        type: string
+                        description: 페이지 아이디
+                        example: 65430340d668b572348bfa1b
+                      createdAt:
+                        type: date
+                        description: 구독 일자 (UTC+0000)
+                        example: '2023-11-05T08:39:56.736Z'
+                      updatedAt: 
+                        type: date
+                        description: 구독 정보 변경 일자 (UTC+0000)
+                        example: '2023-11-05T08:39:56.736Z'
+                      deletedAt:
+                        type: date
+                        description: 구독 취소 일자 (UTC+0000)
+                        example: null
+                      __v:
+                          type: number
+                          description: mongoose version key
+                          example: 0
+                    required:
+                      - _id
+                      - userId
+                      - pageId
+                      - createdAt
+                      - updatedAt
+        '400':
+          description: BadRequest
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 400
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'already exists subscription / invalid parameter'
+        '404':
+          description: NotFound
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  statusCode:
+                    type: number  
+                    description: httpStatus 코드
+                    example: 404
+                  message: 
+                    type: string
+                    description: 에러 메시지
+                    example: 'not found page'
+components:
+  securitySchemes:
+    bearerToken:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: Access Token을 사용하여 인증. ex) Bearer YOUR_ACCESS_TOKEN
+      bearerFormat: JWT
