@@ -3,19 +3,22 @@ import { PageService } from './page.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { Page } from '../model/page.model';
 import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import mongoose from 'mongoose';
+
+const mockPageId = new mongoose.Types.ObjectId().toHexString();
+const mockOwnerId = new mongoose.Types.ObjectId().toHexString();
+const differentOwnerId = new mongoose.Types.ObjectId().toHexString();
 
 const mockPage = {
-    _id: 'mockPageId',
+    _id: mockPageId,
     location: '인천광역시 부평구 충선로 19',
     schoolName: '부평고등학교',
-    ownerId: 'mockUserId'
+    ownerId: mockOwnerId
 }
 
 const updatedMockPage = {
-    _id: 'mockPageId',
-    location: '인천광역시 부평구 충선로 19',
-    schoolName: '부평초등학교',
-    ownerId: 'mockUserId'
+    ...mockPage,
+    schoolName: '부평초등학교'
 }
 
 describe('PageService', () => {
@@ -44,7 +47,7 @@ describe('PageService', () => {
         const createPageDTO = {
             location: '인천광역시 부평구 충선로 19',
             schoolName: '부평고등학교',
-            ownerId: 'mockUserId',
+            ownerId: mockOwnerId,
         };
 
         const pageModel = module.get(getModelToken(Page.name));
@@ -61,13 +64,13 @@ describe('PageService', () => {
         const createPageDTO = {
             location: '인천광역시 부평구 충선로 19',
             schoolName: '부평고등학교',
-            ownerId: 'mockUserId',
+            ownerId: mockOwnerId,
         };
         const queryOptions = {
             location: createPageDTO.location
         }
 
-        const createdPage = { ...createPageDTO, ...mockPage };
+        const createdPage = { ...mockPage, ...createPageDTO };
         const pageModel = module.get(getModelToken(Page.name));
         pageModel.findOne = jest.fn().mockResolvedValue(null);
         pageModel.prototype.save = jest.fn().mockResolvedValue(createdPage);
@@ -90,57 +93,77 @@ describe('PageService', () => {
         expect(pageModel.find).toHaveBeenCalled();
     })
 
+    it('should throw BadRequestException when finding page with invalid pageId', async () => {
+        const invalidPageId = 'invalidPageId';
+
+        try {
+            await service.findOne(invalidPageId);
+        } catch (error) {
+            expect(error).toBeInstanceOf(BadRequestException);
+        }
+    })
+
     it('should find a page', async () => {
-        const pageId = 'mockPageId';
         const pageModel = module.get(getModelToken(Page.name));
 
         pageModel.findById = jest.fn().mockResolvedValue(mockPage);
 
-        const result = await service.findOne(pageId);
+        const result = await service.findOne(mockPageId);
 
         expect(result).toEqual(mockPage);
-        expect(pageModel.findById).toBeCalledWith(pageId);
+        expect(pageModel.findById).toBeCalledWith(mockPageId);
+    })
+
+    it('should throw BadRequestException when updating page with invalid pageId', async () => {
+        const invalidPageId = 'invalidPageId';
+        const updatePageDTO = {
+            schoolName: '부평초등학교',
+            ownerId: mockOwnerId
+        }
+
+        try {
+            await service.updateOne(invalidPageId, updatePageDTO);
+        } catch (error) {
+            expect(error).toBeInstanceOf(BadRequestException);
+        }
     })
 
     it('should throw NotFoundException when updating not found page', async () => {
-        const pageId = 'mockPageId';
         const updatePageDTO = {
             schoolName: '부평초등학교',
-            ownerId: 'mockUserId'
+            ownerId: mockOwnerId
         }
 
         const pageModel = module.get(getModelToken(Page.name));
         pageModel.findById = jest.fn().mockResolvedValue(null);
 
         try {
-            await service.updateOne(pageId, updatePageDTO);
+            await service.updateOne(mockPageId, updatePageDTO);
         } catch (error) {
             expect(error).toBeInstanceOf(NotFoundException);
         }
     })
 
     it('should throw BadRequestException when updating page with different ownerId', async () => {
-        const pageId = 'mockPageId';
         const updatePageDTO = {
             schoolName: '부평초등학교',
-            ownerId: 'differentOwnerId'
+            ownerId: differentOwnerId,
         }
 
         const pageModel = module.get(getModelToken(Page.name));
         pageModel.findById = jest.fn().mockResolvedValue(mockPage);
 
         try {
-            await service.updateOne(pageId, updatePageDTO);
+            await service.updateOne(mockPageId, updatePageDTO);
         } catch (error) {
             expect(error).toBeInstanceOf(UnauthorizedException);
         }
     })
 
     it('should update a page', async () => {
-        const pageId = 'mockPageId';
         const updatePageDTO = {
             schoolName: '부평초등학교',
-            ownerId: 'mockUserId'
+            ownerId: mockOwnerId
         }
         const updateOptions = {
             returnOriginal: false
@@ -150,53 +173,54 @@ describe('PageService', () => {
         pageModel.findById = jest.fn().mockResolvedValue(mockPage);
         pageModel.findByIdAndUpdate = jest.fn().mockResolvedValue(updatedMockPage);
 
-        const result = await service.updateOne(pageId, updatePageDTO);
+        const result = await service.updateOne(mockPageId, updatePageDTO);
 
         expect(result).toEqual(updatedMockPage);
-        expect(pageModel.findById).toBeCalledWith(pageId);
-        expect(pageModel.findByIdAndUpdate).toBeCalledWith(pageId, updatePageDTO, updateOptions);
+        expect(pageModel.findById).toBeCalledWith(mockPageId);
+        expect(pageModel.findByIdAndUpdate).toBeCalledWith(mockPageId, updatePageDTO, updateOptions);
     })
 
-    it('should throw NotFoundException when updating not found page', async () => {
-        const pageId = 'mockPageId';
-        const ownerId = 'mockUserId';
+    it('should throw BadRequestException when deleting page with invalid pageId', async () => {
+        const invalidPageId = 'invalidPageId';
+        
+        try {
+            await service.deleteOne(invalidPageId, mockOwnerId);
+        } catch (error) {
+            expect(error).toBeInstanceOf(BadRequestException);
+        }
+    })
 
+    it('should throw NotFoundException when deleting not found page', async () => {
         const pageModel = module.get(getModelToken(Page.name));
         pageModel.findById = jest.fn().mockResolvedValue(null);
 
         try {
-            await service.deleteOne(pageId, ownerId);
+            await service.deleteOne(mockPageId, mockOwnerId);
         } catch (error) {
             expect(error).toBeInstanceOf(NotFoundException);
         }
     })
 
     it('should throw BadRequestException when deleting page with different ownerId', async () => {
-        const pageId = 'mockPageId';
-        const differentOwnerId = 'differentOwnerId'
-
         const pageModel = module.get(getModelToken(Page.name));
         pageModel.findById = jest.fn().mockResolvedValue(mockPage);
 
         try {
-            await service.deleteOne(pageId, differentOwnerId);
+            await service.deleteOne(mockPageId, differentOwnerId);
         } catch (error) {
             expect(error).toBeInstanceOf(UnauthorizedException);
         }
     })
 
     it('should delete a page', async () => {
-        const pageId = 'mockPageId';
-        const ownerId = 'mockUserId';
-
         const pageModel = module.get(getModelToken(Page.name));
         pageModel.findById = jest.fn().mockResolvedValue(mockPage);
         pageModel.findByIdAndDelete = jest.fn().mockResolvedValue(mockPage);
 
-        const result = await service.deleteOne(pageId, ownerId);
+        const result = await service.deleteOne(mockPageId, mockOwnerId);
 
         expect(result).toEqual(mockPage);
-        expect(pageModel.findById).toBeCalledWith(pageId);
-        expect(pageModel.findByIdAndDelete).toBeCalledWith(pageId);
+        expect(pageModel.findById).toBeCalledWith(mockPageId);
+        expect(pageModel.findByIdAndDelete).toBeCalledWith(mockPageId);
     })
 });

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreatePageDTO {
     @IsNotEmpty()
@@ -9,5 +9,6 @@ export class CreatePageDTO {
     schoolName: string;
     @IsOptional()
     @IsString()
+    @IsMongoId()
     ownerId: string;
 }

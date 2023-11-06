@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, QueryOptions } from 'mongoose';
+import { Model, QueryOptions, Types } from 'mongoose';
 import { News, NewsDocument } from '../model/news.model';
 import { CreateNewsDTO } from './dto/createNews.dto';
 import { UpdateNewsDTO } from './dto/updateNews.dto';
@@ -19,19 +19,28 @@ export class NewsService {
 
     async create(createNewsDTO: CreateNewsDTO): Promise<NewsDocument | undefined> {
         const page = await this.pageModel.findById(createNewsDTO.pageId);
+
         if (!page) 
             throw new NotFoundException('not found page');
+
         const news = new this.newsModel(createNewsDTO);
         return news.save();
     }
 
     async updateOne(newsId: string, updateNewsDTO: UpdateNewsDTO): Promise<NewsDocument | undefined> {
+        if (!Types.ObjectId.isValid(newsId))
+            throw new BadRequestException('invalid newsId');
+        
         const news = await this.newsModel.findById(newsId);
+
         if (!news)
             throw new NotFoundException('not found news');
+
         if (updateNewsDTO.ownerId.toString() !== news.ownerId)
             throw new UnauthorizedException('owner only can update!');
+
         delete updateNewsDTO.ownerId;
+
         return this.newsModel.findByIdAndUpdate(newsId, updateNewsDTO, { returnOriginal: false });
     }
 
@@ -41,11 +50,17 @@ export class NewsService {
         // 이로 인해 ObjectId 로 캐스팅이 안되어 오류 발생
         // 임시방편으로 replace 문 적용
         const filteredNewsId = newsId.replace("\b", "");
+        if (!Types.ObjectId.isValid(filteredNewsId))
+            throw new BadRequestException('invalid newsId');
+
         const news = await this.newsModel.findById(filteredNewsId);
+
         if (!news)
             throw new NotFoundException('not found news');
+
         if (ownerId.toString() !== news.ownerId)
             throw new UnauthorizedException('owner only can delete!');
+
         return this.newsModel.findByIdAndDelete(filteredNewsId);
     }
 }
