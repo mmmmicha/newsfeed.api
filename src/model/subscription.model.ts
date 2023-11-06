@@ -15,14 +15,10 @@ export class Subscription {
     })
     pageId: string;
 
-    @Prop({
-        default: now()
-    })
+    @Prop()
     createdAt: Date;
 
-    @Prop({
-        default: now()
-    })
+    @Prop()
     updatedAt: Date;
 
     @Prop({

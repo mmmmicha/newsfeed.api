@@ -21,14 +21,10 @@ export class News {
     })
     pageId: string;
 
-    @Prop({
-        default: now() 
-    })
+    @Prop()
     createdAt: Date;
 
-    @Prop({
-        default: now()
-    })
+    @Prop()
     updatedAt: Date;
 }
 
