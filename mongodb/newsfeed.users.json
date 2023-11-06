@@ -1,0 +1,58 @@
+[{
+  "_id": {
+    "$oid": "65435548de7458d11e41ca37"
+  },
+  "email": "student@gmail.com",
+  "password": "$2b$10$CqMIT5QkXe3UhyerRmftdO0wsY36kpLWE//1dNwMhYuTDVQrDfK.S",
+  "authorities": [
+    "student"
+  ],
+  "__v": 0,
+  "hashedRefreshToken": "$2b$10$Qg0IsFUlEEkuA1E8u7Np5O0WG1n6dmMDB1Qi.AaAdoD7JLBw2ty0i"
+},
+{
+  "_id": {
+    "$oid": "6545cc0d727a062e0ad7edb6"
+  },
+  "email": "teacher@gmail.com",
+  "password": "$2b$10$1x.7ft5enWGF6xjuDs.wHeS/KImm7.665SMCSWPvlwjJ2isO9FdKy",
+  "authorities": [
+    "teacher"
+  ],
+  "__v": 0,
+  "hashedRefreshToken": "$2b$10$PDgfnKOcxHNhHsSiK/95QOvWyPfG9DQgsaIMdsnpBAacdDaEBNQSS"
+},
+{
+  "_id": {
+    "$oid": "654602e2a79afdf4adb6bc81"
+  },
+  "email": "5@gmail.com",
+  "password": "$2b$10$pFlPrEd5QJ5f6mZjrBDtW./pMzYSfVSSMxvzPTmLpJkqzMLGRW6by",
+  "authorities": [
+    "teacher"
+  ],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6546543aea15926439acdd34"
+  },
+  "email": "1@gmail.com",
+  "password": "$2b$10$Let28NVyyqIB4u0bI8ZnherfjXXHiy3v9Ykz1B.jxkXMoJ6bVs38O",
+  "authorities": [
+    "teacher"
+  ],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "65485afe3016984c7e99d996"
+  },
+  "email": "teacher2@gmail.com",
+  "password": "$2b$10$7VJtuv0nfIVNs3yj53wmO.3aI6Kx5TN4xUrOjrQI7.IHp68qgNVr.",
+  "authorities": [
+    "teacher"
+  ],
+  "__v": 0,
+  "hashedRefreshToken": "$2b$10$P2Haz2fFASC.MShZI2UyMuctNgJZOihJRgqCk6ZnUnTOZwPhjh2de"
+}]

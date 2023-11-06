@@ -1,0 +1,45 @@
+[{
+  "_id": {
+    "$oid": "65430340d668b572348bfa1b"
+  },
+  "location": "인천광역시 부평구 부평5동",
+  "schoolName": "부평남중학교",
+  "__v": 0,
+  "ownerId": "6545cc0d727a062e0ad7edb6"
+},
+{
+  "_id": {
+    "$oid": "654367ffd7f64916ddd4b3e9"
+  },
+  "location": "인천광역시 부평구 부평3동",
+  "schoolName": "부평고등학교",
+  "__v": 0,
+  "ownerId": "6545cc0d727a062e0ad7edb6"
+},
+{
+  "_id": {
+    "$oid": "6543680ed7f64916ddd4b3ea"
+  },
+  "location": "인천광역시 부평구 부평1동",
+  "schoolName": "부평여중학교",
+  "__v": 0,
+  "ownerId": "6545cc0d727a062e0ad7edb6"
+},
+{
+  "_id": {
+    "$oid": "65488a773016984c7e99d9b5"
+  },
+  "location": "인천광역시 부평구 부평7동",
+  "schoolName": "부평최고중학교",
+  "ownerId": "65485afe3016984c7e99d996",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6548dc4e8e11eec444df1ab7"
+  },
+  "location": "인천광역시 부평구 부평19동",
+  "schoolName": "부평최고중학교",
+  "ownerId": "65485afe3016984c7e99d996",
+  "__v": 0
+}]

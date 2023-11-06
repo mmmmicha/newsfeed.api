@@ -1,0 +1,561 @@
+{
+	"info": {
+		"_postman_id": "7a85fbb6-0e3a-435d-93cc-6108a929be7c",
+		"name": "newsfeed.api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11800912"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"pm.test('Success', function() {",
+									"    pm.response.to.have.status(201);",
+									"    pm.collectionVariables.set('accessToken', responseJson.payload['accessToken'])",
+									"    pm.collectionVariables.set('refreshToken', responseJson.payload['refreshToken'])",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"student@gmail.com\",\n    \"password\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"pm.test('Success', function() {",
+									"    pm.response.to.have.status(201);",
+									"    pm.collectionVariables.set('accessToken', responseJson.payload['accessToken'])",
+									"    pm.collectionVariables.set('refreshToken', responseJson.payload['refreshToken'])",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/auth/refresh",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"pm.test('Success', function() {",
+									"    pm.response.to.have.status(201);",
+									"    pm.collectionVariables.set('accessToken', null)",
+									"    pm.collectionVariables.set('refreshToken', null)",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/auth/logout",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "findOne",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/user",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteOne",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/user",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"teacher3@gmail.com\",\n    \"password\": \"12341234\",\n    \"authorities\": [\"teacher\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/user",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Page",
+			"item": [
+				{
+					"name": "findOne",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/page/65430340d668b572348bfa1b",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"page",
+								"65430340d668b572348bfa1b"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "find",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/page/list",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"page",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteOne",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/page/6548dc2e8e11eec444df1aaa",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"page",
+								"6548dc2e8e11eec444df1aaa"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateOne",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"schoolName\" : \"부평최저중학교\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/page/6548dc2e8e11eec444df1aaa",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"page",
+								"6548dc2e8e11eec444df1aaa"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"location\": \"인천광역시 부평구 부평19동\",\n    \"schoolName\": \"부평최고중학교\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/page",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"page"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "News",
+			"item": [
+				{
+					"name": "find",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/news/list",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"news",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteOne",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/news/\b6548dc668e11eec444df1abd",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"news",
+								"\b6548dc668e11eec444df1abd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateOne",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"news-final-99\",\n    \"content\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/news/6548dc668e11eec444df1abd",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"news",
+								"6548dc668e11eec444df1abd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"news-final-1\",\n    \"content\": \"1234\",\n    \"pageId\": \"6548dc4e8e11eec444df1ab7\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/news",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"news"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Subscription",
+			"item": [
+				{
+					"name": "findSubscribedPages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/subscription/page/list",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"subscription",
+								"page",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findSubscribedPageNews",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/subscription/page/65488a773016984c7e99d9b5/news/list",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"subscription",
+								"page",
+								"65488a773016984c7e99d9b5",
+								"news",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findAllSubscribedPagesNews",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/subscription/news/list",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"subscription",
+								"news",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteOne",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/subscription/\b6548dccd8e11eec444df1ad1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"subscription",
+								"\b6548dccd8e11eec444df1ad1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pageId\": \"6548dc4e8e11eec444df1ab7\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/subscription",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"subscription"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "accessToken",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTQyNzcyNmQzMzg2MDc2YTU2NTFmNjUiLCJhdXRob3JpdGllcyI6WyJhZG1pbiJdLCJpYXQiOjE2OTg4NTQ5ODIsImV4cCI6MTcwMjQ1NDk4Mn0.RpKnrfacU78FKM6UFu-zmyfo7-U_gXKwOolfRtdCjxQ",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTQyNzcyNmQzMzg2MDc2YTU2NTFmNjUiLCJhdXRob3JpdGllcyI6WyJhZG1pbiJdLCJpYXQiOjE2OTg4NTQ5ODIsImV4cCI6MTcwMTQ0Njk4Mn0.KYscOs9a1mxHb_ScGihF8z-SUKg3GzYT5ot8x1aKiF8",
+			"type": "string"
+		},
+		{
+			"key": "url",
+			"value": "localhost:3000",
+			"type": "string"
+		}
+	]
+}
